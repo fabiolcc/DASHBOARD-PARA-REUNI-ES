@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Consultas e Exames Realizados</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            margin-top: 20px;
+        }
+
+        /* Animações */
+        .fade-in {
+            animation: fadeIn 2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .header-logo {
+            width: 150px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .custom-select {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: 30px;
+        }
+
+        .table-responsive {
+            margin-top: 20px;
+        }
+
+        /* Tamanho da tela de impressão */
+        @media print {
+            body {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container fade-in">
+        <!-- Logo e título da instituição -->
+        <div class="text-center">
+            <!-- Substitua pelo logo da sua instituição -->
+            <img src="logo.png" alt="Logo da Instituição" class="header-logo">
+            <h2>SISTEMA DE DASHBOARDS DE CONSULTAS</h2>
+        </div>
+
+        <!-- Formulário de entrada de dados -->
+        <div class="row">
+            <div class="col-md-6">
+                <label for="municipio" class="form-label">Selecione o Município</label>
+                <select class="form-select" id="municipio">
+                    <option value="Cafelandia">Cafelandia</option>
+                    <option value="Sta Casa de Cafelandia">Sta Casa de Cafelandia</option>
+                    <option value="Lins">Lins</option>
+                    <option value="Sta Casa de Lins">Sta Casa de Lins</option>
+                    <option value="Getulina">Getulina</option>
+                    <option value="Guaiçara">Guaiçara</option>
+                    <option value="Pongai">Pongai</option>
+                    <option value="Uru">Uru</option>
+                    <option value="Promissão">Promissão</option>
+                    <option value="Ame Promissão">Ame Promissão</option>
+                    <option value="HGP de Promissão">HGP de Promissão</option>
+                    <option value="Sabino">Sabino</option>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label for="especialidade" class="form-label">Selecione a Especialidade</label>
+                <select class="form-select" id="especialidade">
+                    <option value="Consulta Ortopedia">Consulta Ortopedia</option>
+                    <option value="Ortopedia Mão">Ortopedia Mão</option>
+                    <option value="Exames - Raio X Externo">Exames - Raio X Externo</option>
+                    <option value="Oftalmologia">Oftalmologia</option>
+                    <option value="Catarata">Catarata</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="section-title">Insira os Valores para as Categorias</div>
+        <div class="row">
+            <!-- Categorias de entrada de dados -->
+            <div class="col-md-4">
+                <label for="ofertado" class="form-label">Ofertado</label>
+                <input type="number" class="form-control" id="ofertado">
+            </div>
+            <div class="col-md-4">
+                <label for="agendado" class="form-label">Agendado</label>
+                <input type="number" class="form-control" id="agendado">
+            </div>
+            <div class="col-md-4">
+                <label for="bolsao" class="form-label">Bolsão</label>
+                <input type="number" class="form-control" id="bolsao">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <label for="realizado" class="form-label">Realizado</label>
+                <input type="number" class="form-control" id="realizado">
+            </div>
+            <div class="col-md-4">
+                <label for="absenteismo" class="form-label">Absenteísmo (%)</label>
+                <input type="number" class="form-control" id="absenteismo">
+            </div>
+            <div class="col-md-4">
+                <label for="perdaPrimaria" class="form-label">Perda Primária</label>
+                <input type="number" class="form-control" id="perdaPrimaria">
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="gerarGraficos()">Gerar Gráficos</button>
+        </div>
+
+        <!-- Área para gráficos -->
+        <div class="row mt-5">
+            <div class="col-md-6">
+                <canvas id="graficoBarras"></canvas>
+            </div>
+            <div class="col-md-6">
+                <canvas id="graficoPizza"></canvas>
+            </div>
+        </div>
+
+        <!-- Relatório em Tabela -->
+        <div class="section-title mt-5">Relatório</div>
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Categoria</th>
+                        <th>Valor</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaRelatorio">
+                    <tr>
+                        <td>Ofertado</td>
+                        <td id="valorOfertado"></td>
+                    </tr>
+                    <tr>
+                        <td>Agendado</td>
+                        <td id="valorAgendado"></td>
+                    </tr>
+                    <tr>
+                        <td>Bolsão</td>
+                        <td id="valorBolsao"></td>
+                    </tr>
+                    <tr>
+                        <td>Realizado</td>
+                        <td id="valorRealizado"></td>
+                    </tr>
+                    <tr>
+                        <td>Absenteísmo (%)</td>
+                        <td id="valorAbsenteismo"></td>
+                    </tr>
+                    <tr>
+                        <td>Perda Primária</td>
+                        <td id="valorPerdaPrimaria"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Botões para salvar em PDF ou imprimir -->
+        <div class="text-center mt-4">
+            <button class="btn btn-success" onclick="gerarRelatorio()">Gerar Relatório</button>
+            <button class="btn btn-warning" onclick="window.print()">Imprimir Relatório</button>
+        </div>
+    </div>
+
+    <script>
+        function gerarGraficos() {
+            const ofertado = parseInt(document.getElementById('ofertado').value);
+            const agendado = parseInt(document.getElementById('agendado').value);
+            const bolsao = parseInt(document.getElementById('bolsao').value);
+            const realizado = parseInt(document.getElementById('realizado').value);
+            const absenteismo = parseInt(document.getElementById('absenteismo').value);
+            const perdaPrimaria = parseInt(document.getElementById('perdaPrimaria').value);
+
+            // Atualiza a tabela de relatório
+            document.getElementById('valorOfertado').innerText = ofertado;
+            document.getElementById('valorAgendado').innerText = agendado;
+            document.getElementById('valorBolsao').innerText = bolsao;
+            document.getElementById('valorRealizado').innerText = realizado;
+            document.getElementById('valorAbsenteismo').innerText = absenteismo;
+            document.getElementById('valorPerdaPrimaria').innerText = perdaPrimaria;
+
+            // Criação dos gráficos
+            const ctxBarras = document.getElementById('graficoBarras').getContext('2d');
+            const ctxPizza = document.getElementById('graficoPizza').getContext('2d');
+
+            new Chart(ctxBarras, {
+                type: 'bar',
+                data: {
+                    labels: ['Ofertado', 'Agendado', 'Bolsão', 'Realizado', 'Absenteísmo', 'Perda Primária'],
+                    datasets: [{
+                        label: 'Valores',
+                        data: [ofertado, agendado, bolsao, realizado, absenteismo, perdaPrimaria],
+                        backgroundColor: '#007bff',
+                        borderColor: '#0056b3',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            new Chart(ctxPizza, {
+                type: 'pie',
+                data: {
+                    labels: ['Ofertado', 'Agendado', 'Bolsão', 'Realizado', 'Absenteísmo', 'Perda Primária'],
+                    datasets: [{
+                        data: [ofertado, agendado, bolsao, realizado, absenteismo, perdaPrimaria],
+                        backgroundColor: ['#FF5733', '#FFBD33', '#75FF33', '#33FF57', '#33B8FF', '#8E33FF']
+                    }]
+                }
+            });
+        }
+
+        function gerarRelatorio() {
+            const relatorio = `
+                <h3>Relatório de Consultas e Exames</h3>
+                <table border="1" style="width: 100%; text-align: center;">
+                    <tr><th>Categoria</th><th>Valor</th></tr>
+                    <tr><td>Ofertado</td><td>${document.getElementById('valorOfertado').innerText}</td></tr>
+                    <tr><td>Agendado</td><td>${document.getElementById('valorAgendado').innerText}</td></tr>
+                    <tr><td>Bolsão</td><td>${document.getElementById('valorBolsao').innerText}</td></tr>
+                    <tr><td>Realizado</td><td>${document.getElementById('valorRealizado').innerText}</td></tr>
+                    <tr><td>Absenteísmo (%)</td><td>${document.getElementById('valorAbsenteismo').innerText}</td></tr>
+                    <tr><td>Perda Primária</td><td>${document.getElementById('valorPerdaPrimaria').innerText}</td></tr>
+                </table>
+                <br>
+                <canvas id="graficoRelatorioBarras"></canvas>
+                <canvas id="graficoRelatorioPizza"></canvas>
+            `;
+            const printWindow = window.open('', '', 'width=800,height=600');
+            printWindow.document.write(relatorio);
+            printWindow.document.close();
+        }
+    </script>
+</body>
+
+</html>
+
